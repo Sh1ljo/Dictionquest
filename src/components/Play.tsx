@@ -80,7 +80,6 @@ export function Play({ game, dictState, onRetry }: Props) {
       </section>
 
       <section className="stage" aria-label="Result">
-        {!rack && <p className="stage-hint muted">One button, pure luck. Each click rolls a real word or a near miss.</p>}
         {rack && (
           <>
             <Rack key={rolls} roll={rack} anim={anim} animating={animating} onDone={settle} />
