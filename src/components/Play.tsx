@@ -30,7 +30,7 @@ function Outcome({ fb, name }: { fb: Feedback | null; name: string }) {
 
 export function Play({ game, dictState, onRetry }: Props) {
   const { state, email, saveFailed, generate, settle } = game
-  const { rack, pending, anim, fb, profile, owned, pts, firsts, rolls } = state
+  const { rack, pending, anim, fb, profile, owned, firsts, rolls } = state
 
   const ready = dictState.status === 'ready'
   const animating = pending !== null
@@ -62,15 +62,12 @@ export function Play({ game, dictState, onRetry }: Props) {
 
   return (
     <>
-      <section className="community" aria-label="Community progress">
-        <div className="counter">
-          <span className="counter-big">{fmt(found)}</span>
-          <span className="counter-small">/ {fmt(total)}</span>
-        </div>
+      <section className="community" aria-label="Progress">
+        <span className="progress-label">Progress</span>
         <div
           className="bar"
           role="progressbar"
-          aria-label="Words found by the community"
+          aria-label="Words discovered by the community"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(pct)}
@@ -78,7 +75,7 @@ export function Play({ game, dictState, onRetry }: Props) {
           <div className="bar-fill" style={{ width: `${pct}%` }} />
         </div>
         <div className="muted small">
-          {fmt(rolls)} rolls · {fmt(ownedCount)} words · {fmt(pts)} points
+          {fmt(found)} of {fmt(total)} words discovered
         </div>
       </section>
 
@@ -117,8 +114,8 @@ export function Play({ game, dictState, onRetry }: Props) {
           Saving is unavailable in this browser view, so progress resets on reload.
         </p>
       )}
-      {RUNTIME.hitChance !== BALANCE.hitChance && (
-        <p className="muted small center">Test mode: hit chance is {RUNTIME.hitChance}%.</p>
+      {RUNTIME.hitOverride !== null && (
+        <p className="muted small center">Test mode: hit chance is {RUNTIME.hitOverride}% for every tier.</p>
       )}
     </>
   )

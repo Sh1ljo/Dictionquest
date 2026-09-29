@@ -48,7 +48,7 @@ export function useGame(data: GameData | null) {
 
   const generate = useCallback(() => {
     if (!data) return
-    const r = roll(data.dict, RUNTIME.hitChance)
+    const r = roll(data.dict, RUNTIME.hitOverride)
     const legendary = r.isWord && r.tier === BALANCE.tiers.length - 1
     // Reduced motion: no cycling, but a short hold so rolls are still paced like everyone else's.
     const anim: Anim = prefersReducedMotion()

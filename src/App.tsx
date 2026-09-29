@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar } from './components/Avatar'
 import { Dictionary } from './components/Dictionary'
 import { NameGate } from './components/NameGate'
-import { Leaderboard } from './components/Leaderboard'
+import { Leaderboard, type BoardScope } from './components/Leaderboard'
 import { Play } from './components/Play'
 import { Profile } from './components/Profile'
 import { useDictionary, type DictionaryState } from './hooks/useDictionary'
@@ -42,6 +42,8 @@ export default function App() {
   const [dictState, retry] = useDictionary()
   const data = dictState.status === 'ready' ? dictState.data : null
   const game = useGame(data)
+  // Lives here so the chosen board survives switching tabs.
+  const [boardScope, setBoardScope] = useState<BoardScope>('')
   const { profile, owned, firsts, pending, fb } = game.state
   // A first find needs a name to go next to it: block everything until one is entered.
   const needsName = firsts > 0 && !profile.name && pending === null
@@ -79,7 +81,7 @@ export default function App() {
         {route === 'dictionary' &&
           (data ? <Dictionary data={data} state={game.state} /> : <NeedsDictionary state={dictState} onRetry={retry} />)}
         {route === 'leaderboard' &&
-          (data ? <Leaderboard data={data} state={game.state} /> : <NeedsDictionary state={dictState} onRetry={retry} />)}
+          (data ? <Leaderboard data={data} state={game.state} scope={boardScope} onScope={setBoardScope} /> : <NeedsDictionary state={dictState} onRetry={retry} />)}
         {route === 'profile' && (
           <Profile
             profile={profile}
