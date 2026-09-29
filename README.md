@@ -41,7 +41,7 @@ Overall about 1 word per 14 rolls. Common includes scrambles that happen to be w
 
 ## What is in the prototype
 
-- **Play**: a fast letter-by-letter reveal (about 0.7 s), plain letters with no boxes that shrink so long words stay on one row, and reduced-motion support. Rolls are one at a time: Generate is locked until the current word has finished revealing. A first find gets a 2-3 second celebration (ink band over the word, a burst of dots and letters, shockwave rings, a stamped "First find"), longer and bigger for rarer tiers; reduced motion skips it.
+- **Play**: a fast letter-by-letter reveal (about 0.7 s), plain letters with no boxes that shrink so long words stay on one row, and reduced-motion support. Rolls are one at a time: Generate is locked until the current word has finished revealing. A first find gets a 2-3 second celebration (ink band over the word, a burst of dots and letters, shockwave rings, a stamped "First find"), longer and bigger for rarer tiers. Generate skips it and rolls again (without a name, it skips straight to the name prompt); reduced motion skips it entirely.
 - **Dictionary**: virtualised list with search, All / Found / Unfound / Mine filters, and the finder shown per word.
 - **Leaderboard**: Global or one country, your rank on that board and how many words you need to pass the next player.
 - **Name required**: the first time you find a word first, once the celebration ends, a blocking dialog asks for a name (2-16 characters). It cannot be skipped, and a profile cannot be saved without one.

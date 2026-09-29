@@ -61,7 +61,7 @@ function Outcome({ fb, name, stamped, counting }: OutcomeProps) {
 }
 
 export function Play({ game, dictState, onRetry }: Props) {
-  const { state, email, saveFailed, generate, settle } = game
+  const { state, email, saveFailed, generate, settle, skipCelebration } = game
   const { rack, pending, anim, fb, profile, owned, firsts, rolls, celebrate } = state
   const [rackEl, setRackEl] = useState<HTMLDivElement | null>(null)
   // The roll whose first find was celebrated. Its outcome keeps the "stamp" styling (and the
@@ -80,9 +80,12 @@ export function Play({ game, dictState, onRetry }: Props) {
   const ownedCount = Object.keys(owned).length
 
   let genLabel = 'Generate'
-  const busy = animating || celebrate
   let onGenerate = () => {
-    if (!busy) generate()
+    if (animating) return
+    // Generate during a celebration skips it. Without a name, the skip goes straight to the
+    // name prompt instead of rolling, so the prompt still names the word just found.
+    if (celebrate && !profile.name) skipCelebration()
+    else generate()
   }
   if (dictState.status === 'loading') genLabel = 'Loading dictionary'
   if (dictState.status === 'error') {
@@ -150,7 +153,7 @@ export function Play({ game, dictState, onRetry }: Props) {
         className="btn go"
         onClick={onGenerate}
         // aria-disabled (not disabled) keeps keyboard focus on the button between rolls.
-        aria-disabled={busy || dictState.status === 'loading'}
+        aria-disabled={animating || dictState.status === 'loading'}
       >
         {genLabel}
       </button>
