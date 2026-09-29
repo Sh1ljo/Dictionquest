@@ -1058,16 +1058,25 @@ main:focus {
 .video.idle .video-back:not(:focus-visible) {
   opacity: 0;
 }
+.video-frame {
+  /* The largest 9:16 frame that fits the window; everything inside scales with its width. */
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100vw, calc(100dvh * 9 / 16));
+  aspect-ratio: 9 / 16;
+}
 .video-word {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
   font-family: var(--mono);
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.15;
   text-transform: uppercase;
-  /* Fill the width, but never grow past a quarter of the height. */
-  font-size: min(25vh, calc(90vw / (var(--n) * 0.66)));
+  /* The game's rack on a 480px phone: 60px per 480px of width, shrinking so a long word stays on one row. */
+  font-size: min(12.5cqw, calc(88cqw / (var(--n) * 0.7)));
 }
 .video-letter {
   display: block;

@@ -4,9 +4,10 @@ import type { Dictionary } from '../core/dictionary'
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 
 // Timing (ms): letters cycle for `BASE`, then lock left to right every `STAGGER`, then the miss holds for `HOLD`.
-const BASE = 600
-const STAGGER = 150
-const HOLD = 800
+// Close to the game's own fast roll (see useGame.ts), with a slightly longer hold so a miss can be read.
+const BASE = 300
+const STAGGER = 50
+const HOLD = 250
 // The Back link fades out after this long without input, so a screen recording stays clean.
 const IDLE_MS = 2500
 // Tiers 1 to 3 (6 to 11 letters): long enough to fill the screen, short enough to stay legible.
@@ -52,7 +53,7 @@ function Word({ letters, onDone }: { letters: string; onDone: () => void }) {
       } else {
         setElapsed(t)
       }
-    }, 40)
+    }, 30)
     return () => window.clearInterval(id)
   }, [letters])
 
@@ -70,7 +71,7 @@ function Word({ letters, onDone }: { letters: string; onDone: () => void }) {
   )
 }
 
-/** A blank white screen with letters cycling in the middle: made to be screen-recorded. */
+/** A blank white screen with letters cycling in the middle, framed 9:16 for TikTok: made to be screen-recorded. */
 export function Video({ dict }: { dict: Dictionary | null }) {
   const [letters, setLetters] = useState<string | null>(null)
   const [idle, setIdle] = useState(false)
@@ -100,7 +101,9 @@ export function Video({ dict }: { dict: Dictionary | null }) {
       <a className="video-back" href="#/play">
         ← Back
       </a>
-      {dict && letters !== null && <Word key={letters} letters={letters} onDone={() => setLetters(nextMiss(dict))} />}
+      <div className="video-frame">
+        {dict && letters !== null && <Word key={letters} letters={letters} onDone={() => setLetters(nextMiss(dict))} />}
+      </div>
     </div>
   )
 }
