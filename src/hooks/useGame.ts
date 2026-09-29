@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { BALANCE, RUNTIME } from '../core/config'
 import { normalizeEmail } from '../core/auth'
-import { initGame, reducer, type Anim } from '../core/game'
+import { celebrationMs, initGame, reducer, type Anim } from '../core/game'
 import { roll } from '../core/roll'
 import {
   clearGuest,
@@ -60,6 +60,16 @@ export function useGame(data: GameData | null) {
   }, [data])
 
   const settle = useCallback(() => dispatch({ type: 'settle', claimed }), [claimed])
+
+  // The celebration's clock lives here, not in the view, so leaving the Play tab mid-animation
+  // still ends it (and lets the name prompt appear). Reduced motion skips it.
+  const { celebrate, rack } = state
+  useEffect(() => {
+    if (!celebrate) return
+    const ms = prefersReducedMotion() ? 0 : celebrationMs(rack?.tier ?? 0)
+    const id = window.setTimeout(() => dispatch({ type: 'celebrated' }), ms)
+    return () => window.clearTimeout(id)
+  }, [celebrate, rack])
 
   const saveProfile = useCallback((patch: Partial<Profile>) => {
     const next = { ...patch }

@@ -21,6 +21,8 @@ export interface GameState extends SavedGame {
   pending: Roll | null
   anim: Anim
   fb: Feedback | null
+  /** A first find is being celebrated; cleared by 'celebrated' once the animation's time is up. */
+  celebrate: boolean
 }
 
 type Claimed = (word: string) => boolean
@@ -28,14 +30,20 @@ type Claimed = (word: string) => boolean
 export type Action =
   | { type: 'roll'; roll: Roll; anim: Anim }
   | { type: 'settle'; claimed: Claimed }
+  | { type: 'celebrated' }
   | { type: 'profile'; patch: Partial<Profile> }
   | { type: 'load'; save: SavedGame }
   | { type: 'reset' }
 
 export const NO_ANIM: Anim = { base: 0, stagger: 0, hold: 0 }
 
+/** How long a first-find celebration runs; rarer tiers linger longer. */
+export function celebrationMs(tier: number): number {
+  return 2000 + tier * 200
+}
+
 export function initGame(save: SavedGame): GameState {
-  return { ...save, rack: null, pending: null, anim: NO_ANIM, fb: null }
+  return { ...save, rack: null, pending: null, anim: NO_ANIM, fb: null, celebrate: false }
 }
 
 function settle(s: GameState, claimed: Claimed): GameState {
@@ -56,24 +64,28 @@ function settle(s: GameState, claimed: Claimed): GameState {
     pts: s.pts + pts,
     firsts: s.firsts + (first ? 1 : 0),
     fb: { kind, word, pts },
+    celebrate: first,
   }
 }
 
 export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case 'roll':
-      // No rolling while a reveal is running: it must finish (and be claimed) first.
-      if (state.pending) return state
+      // No rolling while a reveal or a celebration is running: it must finish first.
+      if (state.pending || state.celebrate) return state
       return {
         ...state,
         rack: action.roll,
         pending: action.roll,
         anim: action.anim,
         fb: null,
+        celebrate: false,
         rolls: state.rolls + 1,
       }
     case 'settle':
       return settle(state, action.claimed)
+    case 'celebrated':
+      return state.celebrate ? { ...state, celebrate: false } : state
     case 'profile':
       return { ...state, profile: { ...state.profile, ...action.patch } }
     case 'load':

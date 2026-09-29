@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
 import { BALANCE, RUNTIME } from '../core/config'
 import type { Feedback } from '../core/game'
 import type { Game } from '../hooks/useGame'
 import type { DictionaryState } from '../hooks/useDictionary'
+import { Celebration } from './Celebration'
 import { Rack } from './Rack'
 
 interface Props {
@@ -12,14 +14,44 @@ interface Props {
 
 const fmt = (n: number) => n.toLocaleString('en-US')
 
-function Outcome({ fb, name }: { fb: Feedback | null; name: string }) {
+/** Ticks from 0 up to `value` once the burst has landed. */
+function CountUp({ value, delay, duration }: { value: number; delay: number; duration: number }) {
+  const [shown, setShown] = useState(0)
+  useEffect(() => {
+    const start = performance.now() + delay
+    let frame = 0
+    const tick = (now: number) => {
+      const k = Math.min(1, Math.max(0, (now - start) / duration))
+      setShown(Math.round(value * (1 - (1 - k) ** 3)))
+      if (k < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [value, delay, duration])
+  return <>{shown}</>
+}
+
+interface OutcomeProps {
+  fb: Feedback | null
+  name: string
+  /** Styled as the celebrated first find (stays on after the celebration ends). */
+  stamped: boolean
+  /** The celebration is running, so the points tick up. */
+  counting: boolean
+}
+
+function Outcome({ fb, name, stamped, counting }: OutcomeProps) {
   if (!fb) return null
   if (fb.kind === 'miss') return <span className="pop muted">No word.</span>
   return (
-    <div className="pop outcome">
+    <div className={stamped ? 'outcome stamp' : 'pop outcome'}>
       <div className="outcome-word">
         <span className="word">{fb.word}</span>
-        {fb.kind !== 'dup' && <span className="pts">+{fb.pts}</span>}
+        {fb.kind !== 'dup' && (
+          <span className="pts">
+            +{counting ? <CountUp value={fb.pts} delay={600} duration={700} /> : fb.pts}
+          </span>
+        )}
       </div>
       {fb.kind === 'first' && <span className="pill">{name ? `First find · ${name}` : 'First find'}</span>}
       {fb.kind === 're' && <span className="muted small">Rediscovery · {Math.round(BALANCE.rediscoveryShare * 100)}% points</span>}
@@ -30,7 +62,15 @@ function Outcome({ fb, name }: { fb: Feedback | null; name: string }) {
 
 export function Play({ game, dictState, onRetry }: Props) {
   const { state, email, saveFailed, generate, settle } = game
-  const { rack, pending, anim, fb, profile, owned, firsts, rolls } = state
+  const { rack, pending, anim, fb, profile, owned, firsts, rolls, celebrate } = state
+  const [rackEl, setRackEl] = useState<HTMLDivElement | null>(null)
+  // The roll whose first find was celebrated. Its outcome keeps the "stamp" styling (and the
+  // particles keep falling) after the celebration's clock ends, so nothing snaps or replays.
+  const [stampedRoll, setStampedRoll] = useState(-1)
+  useEffect(() => {
+    if (celebrate) setStampedRoll(rolls)
+  }, [celebrate, rolls])
+  const stamped = celebrate || stampedRoll === rolls
 
   const ready = dictState.status === 'ready'
   const animating = pending !== null
@@ -40,8 +80,9 @@ export function Play({ game, dictState, onRetry }: Props) {
   const ownedCount = Object.keys(owned).length
 
   let genLabel = 'Generate'
+  const busy = animating || celebrate
   let onGenerate = () => {
-    if (!animating) generate()
+    if (!busy) generate()
   }
   if (dictState.status === 'loading') genLabel = 'Loading dictionary'
   if (dictState.status === 'error') {
@@ -79,13 +120,24 @@ export function Play({ game, dictState, onRetry }: Props) {
         </div>
       </section>
 
-      <section className="stage" aria-label="Result">
+      <section className={celebrate ? 'stage shake' : 'stage'} aria-label="Result">
         {rack && (
           <>
-            <Rack key={rolls} roll={rack} anim={anim} animating={animating} onDone={settle} />
+            <Rack
+              key={rolls}
+              roll={rack}
+              anim={anim}
+              animating={animating}
+              celebrate={celebrate}
+              onDone={settle}
+              rackRef={setRackEl}
+            />
             <div className="feedback" aria-hidden="true">
-              <Outcome fb={shown} name={profile.name} />
+              <Outcome fb={shown} name={profile.name} stamped={stamped} counting={celebrate} />
             </div>
+            {stamped && shown?.kind === 'first' && (
+              <Celebration key={`burst-${rolls}`} word={shown.word} tier={rack.tier} origin={rackEl} />
+            )}
             <div className="sr-only" role="status" aria-live="polite">
               {announce}
             </div>
@@ -98,7 +150,7 @@ export function Play({ game, dictState, onRetry }: Props) {
         className="btn go"
         onClick={onGenerate}
         // aria-disabled (not disabled) keeps keyboard focus on the button between rolls.
-        aria-disabled={animating || dictState.status === 'loading'}
+        aria-disabled={busy || dictState.status === 'loading'}
       >
         {genLabel}
       </button>

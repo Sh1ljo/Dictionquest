@@ -443,6 +443,168 @@ main:focus {
   text-transform: uppercase;
 }
 
+/* ---------- celebration (first find) ----------
+   Timeline from the moment the word locks, in ms:
+   0 letters press and wave · 250 ink band sweeps over the word · 600 burst and rings (Celebration.tsx)
+   · 850 "First find" stamps down · 1120 stage shake · 1300-1750 band retracts · 2000+ name prompt.
+   Every animation ends at its resting state, so removing the classes afterwards changes nothing. */
+
+.rack.celebrate {
+  position: relative;
+  isolation: isolate;
+  background: var(--paper);
+  animation: rack-thump 560ms 560ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+/* White with difference blending inverts whatever it covers: black band, white letters. */
+.rack-ink {
+  --w: calc(var(--n) * 0.68em + 0.55em);
+  position: absolute;
+  z-index: 2;
+  top: -0.08em;
+  bottom: -0.06em;
+  left: 50%;
+  width: var(--w);
+  margin-left: calc(var(--w) / -2);
+  background: #fff;
+  mix-blend-mode: difference;
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+  animation: rack-ink 1500ms 250ms cubic-bezier(0.7, 0, 0.2, 1) both;
+}
+.rack.celebrate .letter {
+  animation: letter-wave 760ms calc(var(--i) * 45ms) cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+.rarity.celebrate .dot.on {
+  animation: dot-pop 460ms calc(320ms + var(--i) * 90ms) cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+.rarity.celebrate .tier-label {
+  animation: label-in 700ms 250ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.outcome.stamp .outcome-word {
+  animation: pop 320ms 480ms ease-out both;
+}
+.outcome.stamp .pill {
+  animation: stamp 560ms 850ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.stage.shake {
+  animation: shake 340ms 1120ms linear both;
+}
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@keyframes rack-ink {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  24% {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  70% {
+    transform: scaleX(1);
+    transform-origin: right center;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+}
+@keyframes letter-wave {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  22% {
+    transform: translateY(0.05em) scale(0.9, 0.86);
+  }
+  52% {
+    transform: translateY(-0.3em) scale(1.1, 1.16);
+  }
+  78% {
+    transform: translateY(0.03em) scale(1.04, 0.96);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes rack-thump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes dot-pop {
+  0% {
+    transform: scale(0) rotate(90deg);
+  }
+  60% {
+    transform: scale(1.9) rotate(-10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes label-in {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.5em;
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.08em;
+  }
+}
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(2.8) rotate(-12deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(0.88) rotate(-3deg);
+  }
+  72% {
+    transform: scale(1.06) rotate(1.5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  15% {
+    transform: translate(-4px, 2px);
+  }
+  30% {
+    transform: translate(4px, -2px);
+  }
+  45% {
+    transform: translate(-3px, -1px);
+  }
+  60% {
+    transform: translate(2px, 1px);
+  }
+  80% {
+    transform: translate(-1px, 0);
+  }
+}
+
 /* ---------- dictionary ---------- */
 
 .dictionary {
@@ -842,8 +1004,19 @@ main:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pop {
+  .pop,
+  .rack.celebrate,
+  .rack.celebrate .letter,
+  .rarity.celebrate .dot.on,
+  .rarity.celebrate .tier-label,
+  .outcome.stamp .outcome-word,
+  .outcome.stamp .pill,
+  .stage.shake {
     animation: none;
+  }
+  .rack-ink,
+  .celebration {
+    display: none;
   }
   .letter,
   .btn {

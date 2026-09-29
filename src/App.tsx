@@ -44,9 +44,9 @@ export default function App() {
   const game = useGame(data)
   // Lives here so the chosen board survives switching tabs.
   const [boardScope, setBoardScope] = useState<BoardScope>('')
-  const { profile, owned, firsts, pending, fb } = game.state
-  // A first find needs a name to go next to it: block everything until one is entered.
-  const needsName = firsts > 0 && !profile.name && pending === null
+  const { profile, owned, firsts, pending, fb, celebrate } = game.state
+  // A first find needs a name to go next to it: once its celebration ends, block everything until one is entered.
+  const needsName = firsts > 0 && !profile.name && pending === null && !celebrate
   const lastWord = fb && fb.kind !== 'miss' ? fb.word : null
   const mainRef = useRef<HTMLElement>(null)
   const firstRender = useRef(true)

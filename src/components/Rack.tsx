@@ -9,7 +9,10 @@ interface Props {
   roll: Roll
   anim: Anim
   animating: boolean
+  /** A first find: plays the CSS half of the celebration (see "celebration" in styles.css). */
+  celebrate: boolean
   onDone: () => void
+  rackRef?: (el: HTMLDivElement | null) => void
 }
 
 /**
@@ -17,7 +20,7 @@ interface Props {
  * randomly, then lock left to right. Only transform and opacity animate; the size shrinks
  * with word length (see `.rack` in styles.css) so the word always stays on one row.
  */
-export function Rack({ roll, anim, animating, onDone }: Props) {
+export function Rack({ roll, anim, animating, celebrate, onDone, rackRef }: Props) {
   const [elapsed, setElapsed] = useState(0)
   const doneRef = useRef(onDone)
 
@@ -49,19 +52,21 @@ export function Rack({ roll, anim, animating, onDone }: Props) {
 
   return (
     <>
-      <div className="rarity" aria-hidden="true" style={{ opacity: hit ? 1 : 0 }}>
+      <div className={celebrate ? 'rarity celebrate' : 'rarity'} aria-hidden="true" style={{ opacity: hit ? 1 : 0 }}>
         <div className="dots">
           {BALANCE.tiers.map((_, i) => (
-            <span key={i} className={i <= roll.tier ? 'dot on' : 'dot'} />
+            <span key={i} className={i <= roll.tier ? 'dot on' : 'dot'} style={{ '--i': i } as CSSProperties} />
           ))}
         </div>
         <span className="tier-label">{tier.name}</span>
       </div>
       <div
-        className={hit ? 'rack hit' : miss ? 'rack miss' : 'rack'}
+        ref={rackRef}
+        className={celebrate ? 'rack hit celebrate' : hit ? 'rack hit' : miss ? 'rack miss' : 'rack'}
         style={{ '--n': n } as CSSProperties}
         aria-hidden="true"
       >
+        {celebrate && <span className="rack-ink" />}
         {roll.letters.split('').map((letter, i) => {
           const locked = t >= anim.base + i * anim.stagger
           const shown = locked ? letter : ALPHABET[Math.floor(Math.random() * ALPHABET.length)]
@@ -69,7 +74,13 @@ export function Rack({ roll, anim, animating, onDone }: Props) {
             <span
               key={i}
               className="letter"
-              style={{ opacity: locked ? 1 : 0.3, transform: `translateY(${locked ? 0 : -4}px)` }}
+              style={
+                {
+                  '--i': i,
+                  opacity: locked ? 1 : 0.3,
+                  transform: celebrate ? undefined : `translateY(${locked ? 0 : -4}px)`,
+                } as CSSProperties
+              }
             >
               {shown}
             </span>
