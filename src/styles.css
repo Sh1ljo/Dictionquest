@@ -178,7 +178,7 @@ main:focus {
   bottom: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   background: var(--paper);
   border-top: 1.5px solid var(--ink);
   padding: 0 0 env(safe-area-inset-bottom);
@@ -1022,6 +1022,58 @@ main:focus {
   .btn {
     transition: none;
   }
+}
+
+/* ---------- video ---------- */
+
+.video {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+}
+.video.idle {
+  cursor: none;
+}
+.video-back {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 12px);
+  left: var(--gutter);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  margin-left: -12px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 400ms;
+}
+.video-back:hover {
+  background: var(--hover);
+}
+.video.idle .video-back:not(:focus-visible) {
+  opacity: 0;
+}
+.video-word {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  /* Fill the width, but never grow past a quarter of the height. */
+  font-size: min(25vh, calc(90vw / (var(--n) * 0.66)));
+}
+.video-letter {
+  display: block;
+  width: 0.62em;
+  text-align: center;
+  transition: opacity 90ms ease-out;
 }
 
 /* ---------- small phones ---------- */

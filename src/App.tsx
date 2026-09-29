@@ -5,6 +5,7 @@ import { NameGate } from './components/NameGate'
 import { Leaderboard, type BoardScope } from './components/Leaderboard'
 import { Play } from './components/Play'
 import { Profile } from './components/Profile'
+import { Video } from './components/Video'
 import { useDictionary, type DictionaryState } from './hooks/useDictionary'
 import { useGame } from './hooks/useGame'
 import { useRoute, type Route } from './hooks/useRoute'
@@ -13,12 +14,14 @@ const TABS: { route: Route; label: string }[] = [
   { route: 'play', label: 'Play' },
   { route: 'dictionary', label: 'Dictionary' },
   { route: 'leaderboard', label: 'Leaderboard' },
+  { route: 'video', label: 'Video' },
 ]
 
 const TITLES: Record<Route, string> = {
   play: 'Dictionquest',
   dictionary: 'Dictionary · Dictionquest',
   leaderboard: 'Leaderboard · Dictionquest',
+  video: 'Video · Dictionquest',
   profile: 'Profile · Dictionquest',
 }
 
@@ -58,6 +61,9 @@ export default function App() {
     if (firstRender.current) firstRender.current = false
     else mainRef.current?.focus({ preventScroll: true })
   }, [route])
+
+  // The video screen is bare on purpose: no header, no tabs, no name prompt.
+  if (route === 'video') return <Video dict={data ? data.dict : null} />
 
   return (
     <div className="shell">

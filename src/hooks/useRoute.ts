@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-export const ROUTES = ['play', 'dictionary', 'leaderboard', 'profile'] as const
+export const ROUTES = ['play', 'dictionary', 'leaderboard', 'video', 'profile'] as const
 export type Route = (typeof ROUTES)[number]
 
 function parse(): Route {
