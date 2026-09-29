@@ -61,8 +61,6 @@ export function useGame(data: GameData | null) {
 
   const settle = useCallback(() => dispatch({ type: 'settle', claimed }), [claimed])
 
-  const skipCelebration = useCallback(() => dispatch({ type: 'celebrated' }), [])
-
   // The celebration's clock lives here, not in the view, so leaving the Play tab mid-animation
   // still ends it (and lets the name prompt appear). Reduced motion skips it.
   const { celebrate, rack } = state
@@ -111,7 +109,7 @@ export function useGame(data: GameData | null) {
     setEmail(null)
   }, [])
 
-  return { state, email, saveFailed, generate, settle, skipCelebration, saveProfile, reset, signIn, signOut }
+  return { state, email, saveFailed, generate, settle, saveProfile, reset, signIn, signOut }
 }
 
 export type Game = ReturnType<typeof useGame>

@@ -71,9 +71,8 @@ function settle(s: GameState, claimed: Claimed): GameState {
 export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case 'roll':
-      // No rolling while a reveal is running: it must finish (and be claimed) first.
-      // A celebration is not a lock: rolling during one skips it (celebrate is cleared below).
-      if (state.pending) return state
+      // No rolling while a reveal or a celebration is running: it must finish first.
+      if (state.pending || state.celebrate) return state
       return {
         ...state,
         rack: action.roll,
