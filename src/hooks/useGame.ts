@@ -3,6 +3,7 @@ import { BALANCE, RUNTIME } from '../core/config'
 import { normalizeEmail } from '../core/auth'
 import { celebrationMs, initGame, reducer, type Anim } from '../core/game'
 import { roll } from '../core/roll'
+import type { ShopItemId } from '../core/shop'
 import {
   clearGuest,
   cleanName,
@@ -36,28 +37,34 @@ export function useGame(data: GameData | null) {
   const [saveFailed, setSaveFailed] = useState(!loaded.storageOk)
   const stateRef = useRef(state)
 
-  const { profile, owned, pts, firsts, rolls } = state
+  const { profile, owned, pts, firsts, rolls, shopItems } = state
   useEffect(() => {
     stateRef.current = state
   }, [state])
   useEffect(() => {
-    setSaveFailed(!saveGame({ profile, owned, pts, firsts, rolls }, email))
-  }, [profile, owned, pts, firsts, rolls, email])
+    setSaveFailed(!saveGame({ profile, owned, pts, firsts, rolls, shopItems }, email))
+  }, [profile, owned, pts, firsts, rolls, shopItems, email])
 
   const claimed = data ? data.world.claimed : never
 
   const generate = useCallback(() => {
     if (!data) return
-    const r = roll(data.dict, RUNTIME.hitOverride)
+    const r = roll(data.dict, RUNTIME.hitOverride, shopItems.includes('lucky-charm'))
     const legendary = r.isWord && r.tier === BALANCE.tiers.length - 1
     // Reduced motion: no cycling, but a short hold so rolls are still paced like everyone else's.
-    const anim: Anim = prefersReducedMotion()
+    const baseAnim: Anim = prefersReducedMotion()
       ? { base: 0, stagger: 0, hold: 250 }
       : legendary
         ? { base: 700, stagger: 70, hold: 150 }
         : { base: 350, stagger: 45, hold: 120 }
+    const speed = shopItems.includes('quick-fingers') ? 0.8 : 1
+    const anim: Anim = {
+      base: Math.round(baseAnim.base * speed),
+      stagger: Math.round(baseAnim.stagger * speed),
+      hold: Math.round(baseAnim.hold * speed),
+    }
     dispatch({ type: 'roll', roll: r, anim })
-  }, [data])
+  }, [data, shopItems])
 
   const settle = useCallback(() => dispatch({ type: 'settle', claimed }), [claimed])
 
@@ -78,6 +85,7 @@ export function useGame(data: GameData | null) {
   }, [])
 
   const reset = useCallback(() => dispatch({ type: 'reset' }), [])
+  const purchase = useCallback((item: ShopItemId) => dispatch({ type: 'purchase', item }), [])
 
   /**
    * Signing in to a new email adopts the current game as that account's game.
@@ -109,7 +117,7 @@ export function useGame(data: GameData | null) {
     setEmail(null)
   }, [])
 
-  return { state, email, saveFailed, generate, settle, saveProfile, reset, signIn, signOut }
+  return { state, email, saveFailed, generate, settle, saveProfile, reset, purchase, signIn, signOut }
 }
 
 export type Game = ReturnType<typeof useGame>

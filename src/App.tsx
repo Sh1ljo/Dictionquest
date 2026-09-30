@@ -5,6 +5,7 @@ import { NameGate } from './components/NameGate'
 import { Leaderboard, type BoardScope } from './components/Leaderboard'
 import { Play } from './components/Play'
 import { Profile } from './components/Profile'
+import { Shop } from './components/Shop'
 import { Video } from './components/Video'
 import { useDictionary, type DictionaryState } from './hooks/useDictionary'
 import { useGame } from './hooks/useGame'
@@ -14,6 +15,7 @@ const TABS: { route: Route; label: string }[] = [
   { route: 'play', label: 'Play' },
   { route: 'dictionary', label: 'Dictionary' },
   { route: 'leaderboard', label: 'Leaderboard' },
+  { route: 'shop', label: 'Shop' },
   { route: 'video', label: 'Video' },
 ]
 
@@ -21,6 +23,7 @@ const TITLES: Record<Route, string> = {
   play: 'Dictionquest',
   dictionary: 'Dictionary · Dictionquest',
   leaderboard: 'Leaderboard · Dictionquest',
+  shop: 'Shop · Dictionquest',
   video: 'Video · Dictionquest',
   profile: 'Profile · Dictionquest',
 }
@@ -47,7 +50,7 @@ export default function App() {
   const game = useGame(data)
   // Lives here so the chosen board survives switching tabs.
   const [boardScope, setBoardScope] = useState<BoardScope>('')
-  const { profile, owned, firsts, pending, fb, celebrate } = game.state
+  const { profile, owned, firsts, pending, fb, celebrate, shopItems } = game.state
   // A first find needs a name to go next to it: once its celebration ends, block everything until one is entered.
   const needsName = firsts > 0 && !profile.name && pending === null && !celebrate
   const lastWord = fb && fb.kind !== 'miss' ? fb.word : null
@@ -88,6 +91,7 @@ export default function App() {
           (data ? <Dictionary data={data} state={game.state} /> : <NeedsDictionary state={dictState} onRetry={retry} />)}
         {route === 'leaderboard' &&
           (data ? <Leaderboard data={data} state={game.state} scope={boardScope} onScope={setBoardScope} /> : <NeedsDictionary state={dictState} onRetry={retry} />)}
+        {route === 'shop' && <Shop ownedItems={shopItems} onPurchase={game.purchase} />}
         {route === 'profile' && (
           <Profile
             profile={profile}

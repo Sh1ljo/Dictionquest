@@ -178,7 +178,7 @@ main:focus {
   bottom: 0;
   z-index: 5;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   background: var(--paper);
   border-top: 1.5px solid var(--ink);
   padding: 0 0 env(safe-area-inset-bottom);
@@ -189,7 +189,7 @@ main:focus {
   border: 0;
   background: transparent;
   color: var(--muted);
-  font-size: 14px;
+  font-size: clamp(10px, 3vw, 14px);
   font-weight: 500;
   box-shadow: inset 0 3px 0 transparent;
 }
@@ -200,6 +200,84 @@ main:focus {
   color: var(--ink);
   font-weight: 600;
   box-shadow: inset 0 3px 0 var(--ink);
+}
+
+/* ---------- shop ---------- */
+
+.shop {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.shop-heading h1 {
+  margin: 4px 0;
+  font-size: 28px;
+  letter-spacing: -0.03em;
+}
+.shop-heading p {
+  margin: 0;
+}
+.shop-note {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.shop-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.shop-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.shop-card-copy {
+  min-width: 0;
+}
+.shop-card-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.shop-card h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.shop-card p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.shop-card p.shop-effect {
+  color: var(--subtle);
+  font-size: 12px;
+}
+.shop-owned {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--hover);
+  font-size: 11px;
+  font-weight: 600;
+}
+.shop-buy {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.shop-buy.owned {
+  border-color: var(--line);
+  color: var(--muted);
 }
 
 /* ---------- buttons and fields ---------- */
@@ -1097,6 +1175,9 @@ main:focus {
   .rank {
     gap: 8px;
     grid-template-columns: 24px 32px minmax(0, 1fr) auto;
+  }
+  .shop-card {
+    padding: 13px;
   }
 }
 

@@ -1,4 +1,5 @@
 import { points, rediscoveryPoints, type Roll } from './roll'
+import type { ShopItemId } from './shop'
 import { EMPTY_SAVE, type Ownership, type Profile, type SavedGame } from './store'
 
 export interface Anim {
@@ -32,6 +33,7 @@ export type Action =
   | { type: 'settle'; claimed: Claimed }
   | { type: 'celebrated' }
   | { type: 'profile'; patch: Partial<Profile> }
+  | { type: 'purchase'; item: ShopItemId }
   | { type: 'load'; save: SavedGame }
   | { type: 'reset' }
 
@@ -88,10 +90,14 @@ export function reducer(state: GameState, action: Action): GameState {
       return state.celebrate ? { ...state, celebrate: false } : state
     case 'profile':
       return { ...state, profile: { ...state.profile, ...action.patch } }
+    case 'purchase':
+      return state.shopItems.includes(action.item)
+        ? state
+        : { ...state, shopItems: [...state.shopItems, action.item] }
     case 'load':
       return initGame(action.save)
     case 'reset':
-      return initGame({ ...EMPTY_SAVE, profile: state.profile })
+      return initGame({ ...EMPTY_SAVE, profile: state.profile, shopItems: state.shopItems })
     default:
       return state
   }

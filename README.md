@@ -44,6 +44,7 @@ Overall about 1 word per 14 rolls. Common includes scrambles that happen to be w
 - **Play**: a fast letter-by-letter reveal (about 0.7 s), plain letters with no boxes that shrink so long words stay on one row, and reduced-motion support. Rolls are one at a time: Generate is locked until the current word has finished revealing. A first find gets a 2-3 second celebration (ink band over the word, a burst of dots and letters, shockwave rings, a stamped "First find"), longer and bigger for rarer tiers; reduced motion skips it.
 - **Dictionary**: virtualised list with search, All / Found / Unfound / Mine filters, and the finder shown per word.
 - **Leaderboard**: Global or one country, your rank on that board and how many words you need to pass the next player.
+- **Shop**: a prototype-only shop with permanent €2 mock purchases: 20% better word-hit odds, 20% shorter reveals, and an ad-free pass for future ad placements. No payment is taken; the game currently has no ads. Purchases are saved with the current game and survive progress resets.
 - **Name required**: the first time you find a word first, once the celebration ends, a blocking dialog asks for a name (2-16 characters). It cannot be skipped, and a profile cannot be saved without one.
 - **Profile**: display name, country and 12 sample avatars. Progress reset lives here too.
 - **Simulated sign-in** (Profile, "Save your progress"): enter an email, then the 6-digit code, which is shown on screen because no email is sent yet. A new email adopts your current guest game; a known email restores its saved game and leaves the guest game untouched until you sign out.
@@ -54,6 +55,7 @@ Overall about 1 word per 14 rolls. Common includes scrambles that happen to be w
 - **Other players are simulated.** A fixed 7% of the dictionary is deterministically attributed to 61 fake players (four each in 12 countries, one each in 13 more), and the leaderboard is computed from that same attribution. Only you are real. Your progress lives in `localStorage`, so two browsers are two separate players.
 - **Rolls happen in the browser**, so they can be tampered with. The plan's server-side roll, rate limits and energy replace this later.
 - **Sign-in is simulated.** "Accounts" are records in this browser's `localStorage`: not real, not secure, and not synced across devices.
+- **Shop purchases are simulated.** They do not charge money and only persist in the current browser's guest/account save.
 - Names are not checked for uniqueness or profanity.
 
 ## Project layout

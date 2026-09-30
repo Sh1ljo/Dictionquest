@@ -1,3 +1,5 @@
+import type { ShopItemId } from './shop'
+
 export interface Profile {
   name: string
   /** ISO 3166-1 alpha-2 code, or '' when not set. */
@@ -13,6 +15,7 @@ export interface SavedGame {
   pts: number
   firsts: number
   rolls: number
+  shopItems: ShopItemId[]
 }
 
 /** The guest game (nobody signed in). */
@@ -28,6 +31,7 @@ export const EMPTY_SAVE: SavedGame = {
   pts: 0,
   firsts: 0,
   rolls: 0,
+  shopItems: [],
 }
 
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/g
@@ -42,7 +46,14 @@ export function validateName(raw: string): string | null {
 }
 
 export function toSave(s: SavedGame): SavedGame {
-  return { profile: s.profile, owned: s.owned, pts: s.pts, firsts: s.firsts, rolls: s.rolls }
+  return {
+    profile: s.profile,
+    owned: s.owned,
+    pts: s.pts,
+    firsts: s.firsts,
+    rolls: s.rolls,
+    shopItems: [...s.shopItems],
+  }
 }
 
 function count(v: unknown): number {
@@ -61,6 +72,10 @@ function parseSave(raw: string): SavedGame {
       if (v === 'first' || v === 're') owned[w] = v
     }
   }
+  const validShopItems: ShopItemId[] = ['lucky-charm', 'quick-fingers', 'ad-free']
+  const shopItems = Array.isArray(d.shopItems)
+    ? [...new Set(d.shopItems.filter((item): item is ShopItemId => validShopItems.includes(item as ShopItemId)))]
+    : []
   return {
     profile: {
       name: cleanName(String(p.name ?? d.name ?? '')),
@@ -71,6 +86,7 @@ function parseSave(raw: string): SavedGame {
     pts: count(d.pts),
     firsts: count(d.firsts),
     rolls: count(d.rolls),
+    shopItems,
   }
 }
 

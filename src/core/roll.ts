@@ -40,11 +40,12 @@ function pickTier(): number {
  * One click: pick a tier by weight, a word from it, then hit (the word) or miss (scrambled).
  * The hit chance is the tier's own unless `hitOverride` (a test override) is set.
  */
-export function roll(dict: Dictionary, hitOverride: number | null): Roll {
+export function roll(dict: Dictionary, hitOverride: number | null, luckBoost = false): Roll {
   const tier = pickTier()
   const pool = dict.tierWords[tier]
   const word = pool[Math.floor(Math.random() * pool.length)]
-  const hitChance = hitOverride ?? BALANCE.tiers[tier].hitChance
+  const baseChance = hitOverride ?? BALANCE.tiers[tier].hitChance
+  const hitChance = Math.min(100, baseChance * (luckBoost ? 1.2 : 1))
   let letters = word
   if (Math.random() * 100 >= hitChance) {
     letters = shuffle(word)
